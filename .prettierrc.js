@@ -1,2 +1,2 @@
 /** @type {import('prettier').Config} */
-module.exports = require('../../.prettierrc.json');
+module.exports = require('./.baseprettierrc.json');

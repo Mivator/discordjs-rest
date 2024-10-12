@@ -1,5 +1,5 @@
 {
-	"extends": "../../api-extractor.json",
+	"extends": "./baseapi-extractor.json",
 	"docModel": {
 		"projectFolderUrl": "https://github.com/discordjs/discord.js/tree/main/packages/rest"
 	}

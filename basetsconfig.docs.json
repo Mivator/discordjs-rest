@@ -1,9 +1,9 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig.json",
-	"extends": "./basetsconfig.docs.json",
+	"extends": "./basetsconfig.json",
 	"compilerOptions": {
-		"outDir": "dist-docs"
+		"emitDeclarationOnly": true,
+		"declarationMap": true
 	},
-	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules"]
 }

@@ -1,6 +1,6 @@
-import { defineProject, mergeConfig } from "vitest/config";
+import { defineProject, mergeConfig } from 'vitest/config';
 
-import configShared from "./basevitetest.config.js";
+import configShared from './basevitetest.config.js';
 
 export default mergeConfig(configShared, {
 	defineProject: defineProject({

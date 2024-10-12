@@ -1,6 +1,6 @@
-import { esbuildPluginVersionInjector } from "esbuild-plugin-version-injector";
+import { esbuildPluginVersionInjector } from 'esbuild-plugin-version-injector';
 
-import { createTsupConfig } from "./basetsup.config.js";
+import { createTsupConfig } from './basetsup.config.js';
 
 export default [
 	createTsupConfig({
