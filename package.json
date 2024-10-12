@@ -1,101 +1,120 @@
 {
 	"$schema": "https://json.schemastore.org/package.json",
-	"name": "@discordjs/discord.js",
-	"version": "0.0.0",
-	"description": "A powerful library for interacting with the Discord API",
-	"private": true,
+	"name": "@discordjs/rest",
+	"version": "2.4.0",
+	"description": "The REST API for discord.js forked to use axios",
 	"scripts": {
-		"build": "turbo run build --concurrency=4",
-		"build:affected": "turbo run build --filter=...[origin/main] --concurrency=4",
-		"build:apps": "turbo run build:local --filter=...{apps/*} --concurrency=4",
-		"build:apps:affected": "turbo run build:local --filter=...{apps/*}[origin/main] --concurrency=4",
-		"test": "turbo run test --concurrency=4",
-		"test:affected": "turbo run test --filter=...[origin/main] --concurrency=4",
-		"lint": "turbo run lint --concurrency=4",
-		"lint:affected": "turbo run lint --filter=...[origin/main] --concurrency=4",
-		"format": "turbo run format --concurrency=4",
-		"format:affected": "turbo run format --filter=...[origin/main] --concurrency=4",
-		"fmt": "turbo run format --concurrency=4",
-		"fmt:affected": "turbo run format --filter=...[origin/main] --concurrency=4",
-		"docs": "turbo run docs --concurrency=4",
-		"docs:affected": "turbo run docs --filter=...[origin/main] --concurrency=4",
-		"prepare": "is-ci || husky",
-		"update": "pnpm --recursive update --interactive",
-		"update:latest": "pnpm --recursive update --interactive --latest",
-		"create-package": "turbo gen create-package --args"
+		"test": "vitest run",
+		"build": "tsc --noEmit && tsup",
+		"build:docs": "tsc -p tsconfig.docs.json",
+		"lint": "prettier --check . && cross-env TIMING=1 eslint --format=pretty src __tests__",
+		"format": "prettier --write . && cross-env TIMING=1 eslint --fix --format=pretty src __tests__",
+		"fmt": "pnpm run format",
+		"docs": "pnpm run build:docs && api-extractor run --local --minify && generate-split-documentation",
+		"prepack": "pnpm run lint && pnpm run test && pnpm run build",
+		"changelog": "git cliff --prepend ./CHANGELOG.md -u -c ./cliff.toml -r ../../ --include-path 'packages/rest/*'",
+		"release": "cliff-jumper"
 	},
-	"type": "module",
+	"exports": {
+		".": {
+			"node": {
+				"require": {
+					"types": "./dist/index.d.ts",
+					"default": "./dist/index.js"
+				},
+				"import": {
+					"types": "./dist/index.d.mts",
+					"default": "./dist/index.mjs"
+				}
+			},
+			"default": {
+				"require": {
+					"types": "./dist/web.d.ts",
+					"default": "./dist/web.js"
+				},
+				"import": {
+					"types": "./dist/web.d.mts",
+					"default": "./dist/web.mjs"
+				}
+			}
+		},
+		"./*": {
+			"require": {
+				"types": "./dist/strategies/*.d.ts",
+				"default": "./dist/strategies/*.js"
+			},
+			"import": {
+				"types": "./dist/strategies/*.d.mts",
+				"default": "./dist/strategies/*.mjs"
+			}
+		}
+	},
+	"types": "./dist/index.d.ts",
+	"directories": {
+		"lib": "src",
+		"test": "__tests__"
+	},
+	"files": [
+		"dist"
+	],
 	"contributors": [
 		"Crawl <icrawltogo@gmail.com>",
 		"Amish Shah <amishshah.2k@gmail.com>",
-		"Vlad Frangu <me@vladfrangu.dev>",
 		"SpaceEEC <spaceeec@yahoo.com>",
+		"Vlad Frangu <me@vladfrangu.dev>",
 		"Aura Román <kyradiscord@gmail.com>"
 	],
+	"license": "Apache-2.0",
 	"keywords": [
 		"discord",
 		"api",
-		"bot",
-		"client",
-		"node",
-		"discordapp"
+		"rest",
+		"discordapp",
+		"discordjs"
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/discordjs/discord.js.git"
+		"url": "https://github.com/discordjs/discord.js.git",
+		"directory": "packages/rest"
 	},
 	"bugs": {
 		"url": "https://github.com/discordjs/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"funding": "https://github.com/discordjs/discord.js?sponsor",
+	"dependencies": {
+		"@discordjs/collection": "^2.1.1",
+		"@discordjs/util": "^1.1.1",
+		"@sapphire/async-queue": "^1.5.3",
+		"@sapphire/snowflake": "^3.5.3",
+		"@vladfrangu/async_event_emitter": "^2.4.6",
+		"axios": "^1.7.7",
+		"build": "^0.1.4",
+		"discord-api-types": "^0.37.101",
+		"magic-bytes.js": "^1.10.0",
+		"tslib": "^2.6.3",
+		"undici": "6.19.8"
+	},
 	"devDependencies": {
-		"@commitlint/cli": "^19.4.0",
-		"@commitlint/config-angular": "^19.3.0",
 		"@favware/cliff-jumper": "^4.1.0",
-		"@favware/npm-deprecate": "^1.0.7",
-		"@types/lodash.merge": "^4.6.9",
-		"@unocss/eslint-plugin": "^0.59.4",
+		"@types/node": "18.17.9",
 		"@vitest/coverage-v8": "^2.0.5",
-		"conventional-changelog-cli": "^4.1.0",
+		"cross-env": "^7.0.3",
+		"esbuild-plugin-version-injector": "^1.2.1",
 		"eslint": "^8.57.0",
 		"eslint-config-neon": "^0.1.62",
-		"husky": "^9.1.5",
-		"is-ci": "^3.0.1",
-		"lint-staged": "^15.2.9",
-		"lodash.merge": "^4.6.2",
+		"eslint-formatter-pretty": "^6.0.1",
 		"prettier": "^3.3.3",
 		"tsup": "^8.2.4",
 		"turbo": "^2.0.14",
 		"typescript": "~5.5.4",
-		"typescript-eslint": "^8.2.0",
-		"unocss": "^0.60.4",
-		"vercel": "^37.0.0",
 		"vitest": "^2.0.5"
-	},
-	"pnpm": {
-		"peerDependencyRules": {
-			"ignoreMissing": [
-				"*"
-			],
-			"allowedAny": [
-				"*"
-			]
-		},
-		"overrides": {
-			"@contentlayer/utils>@opentelemetry/core": "^1.15.1",
-			"@contentlayer/utils>@opentelemetry/exporter-trace-otlp-grpc": "^0.41.1",
-			"@contentlayer/utils>@opentelemetry/resources": "^1.15.1",
-			"@contentlayer/utils>@opentelemetry/sdk-trace-base": "^1.15.1",
-			"@contentlayer/utils>@opentelemetry/sdk-trace-node": "^1.15.1",
-			"@contentlayer/utils>@opentelemetry/semantic-conventions": "^1.15.1"
-		},
-		"patchedDependencies": {
-			"@microsoft/tsdoc-config@0.16.2": "patches/@microsoft__tsdoc-config@0.16.2.patch"
-		}
 	},
 	"engines": {
 		"node": ">=18"
 	},
-	"packageManager": "pnpm@9.8.0"
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }
