@@ -1,7 +1,7 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import { HeadersInit, RequestInfo, RequestInit } from 'undici';
+import axios, { AxiosRequestConfig } from "axios";
+import { HeadersInit, RequestInfo, RequestInit } from "undici";
 
-import { ResponseLike } from './shared';
+import { ResponseLike } from "./shared";
 
 const normalizeHeaders = (headers: Record<string, any>): HeadersInit => {
 	if (!headers) return new Headers();
@@ -66,7 +66,7 @@ export const customFetch = async (input: RequestInfo | URL, options: RequestInit
 		data: options?.body ?? undefined,
 	} as AxiosRequestConfig).then(
 		(r) =>
-			new CustomResponse(r.data, {
+			new CustomResponse(r.status === 204 ? null : r.data, {
 				status: r.status,
 				statusText: r.statusText,
 				headers: normalizeHeaders(r.headers),
