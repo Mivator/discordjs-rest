@@ -59,7 +59,7 @@ var customFetch = /* @__PURE__ */ __name(async (input, options = {}) => {
     headers: options?.headers ?? {},
     data: options?.body ?? void 0
   }).then(
-    (r) => new CustomResponse(r.data, {
+    (r) => new CustomResponse(r.status === 204 ? null : r.data, {
       status: r.status,
       statusText: r.statusText,
       headers: normalizeHeaders(r.headers)
