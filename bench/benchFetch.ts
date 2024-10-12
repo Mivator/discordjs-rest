@@ -1,38 +1,38 @@
-import { getDefaultFetch } from "../src/defaultFetch.js";
+import { getDefaultFetch } from '../src/defaultFetch.js';
 
 const fetchRuntime = getDefaultFetch();
 
 async function bench(amount: number) {
-    const totalStart = performance.now(); // Start total timer
-    const requestCount = amount; // Limit to 1000 requests for reasonable benchmarking
-    let totalResponseTime = 0; // Track total time for each request
-    let totalDataTime = 0;     // Track total time to get data
-    for (let i = 0; i < requestCount; i++) {
-        const requestStart = performance.now(); // Start timer for each request
-        try {
-            const res = await fetchRuntime("https://jsonplaceholder.org/comments/1");
-            const responseTime = performance.now() - requestStart;
-            totalResponseTime += responseTime;
+	const totalStart = performance.now(); // Start total timer
+	const requestCount = amount; // Limit to 1000 requests for reasonable benchmarking
+	let totalResponseTime = 0; // Track total time for each request
+	let totalDataTime = 0; // Track total time to get data
+	for (let i = 0; i < requestCount; i++) {
+		const requestStart = performance.now(); // Start timer for each request
+		try {
+			const res = await fetchRuntime('https://jsonplaceholder.org/comments/1');
+			const responseTime = performance.now() - requestStart;
+			totalResponseTime += responseTime;
 
-            console.log(`Request ${i + 1} - Status: ${res.status}, Response Time: ${responseTime}ms`);
+			console.log(`Request ${i + 1} - Status: ${res.status}, Response Time: ${responseTime}ms`);
 
-            const dataStart = performance.now();
-            const data = await res.json();
-            const dataTime = performance.now() - dataStart;
-            totalDataTime += dataTime;
+			const dataStart = performance.now();
+			const data = await res.json();
+			const dataTime = performance.now() - dataStart;
+			totalDataTime += dataTime;
 
-            console.log(`Data Time: ${dataTime}ms, Data:`, data);
-        } catch (err) {
-            console.error(`Request ${i + 1} failed:`, err);
-        }
-    }
-    const totalEnd = performance.now();
-    const totalTime = totalEnd - totalStart;
-    const avgResponseTime = totalResponseTime / requestCount;
-    const avgDataTime = totalDataTime / requestCount;
-    console.log(`\nTotal Time: ${totalTime.toFixed(2)}ms`);
-    console.log(`Average Response Time: ${avgResponseTime.toFixed(2)}ms`);
-    console.log(`Average Data Time: ${avgDataTime.toFixed(2)}ms`);
+			console.log(`Data Time: ${dataTime}ms, Data:`, data);
+		} catch (err) {
+			console.error(`Request ${i + 1} failed:`, err);
+		}
+	}
+	const totalEnd = performance.now();
+	const totalTime = totalEnd - totalStart;
+	const avgResponseTime = totalResponseTime / requestCount;
+	const avgDataTime = totalDataTime / requestCount;
+	console.log(`\nTotal Time: ${totalTime.toFixed(2)}ms`);
+	console.log(`Average Response Time: ${avgResponseTime.toFixed(2)}ms`);
+	console.log(`Average Data Time: ${avgDataTime.toFixed(2)}ms`);
 }
 
 bench(1000);

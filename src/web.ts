@@ -1,5 +1,5 @@
-import { getDefaultFetch } from "./defaultFetch.js";
-import { setDefaultStrategy } from "./environment.js";
+import { getDefaultFetch } from './defaultFetch.js';
+import { setDefaultStrategy } from './environment.js';
 
 setDefaultStrategy(getDefaultFetch());
 

@@ -52,18 +52,19 @@ var CustomResponse = class extends Response {
 };
 var customFetch = /* @__PURE__ */ __name(async (input, options = {}) => {
   const url = typeof input === "string" ? new URL(input) : input instanceof URL ? input : new URL(input.url);
-  const response = await axios({
+  return axios({
     ...options,
     url: url.toString(),
     method: options?.method ?? "GET",
     headers: options?.headers ?? {},
     data: options?.body ?? void 0
-  });
-  return new CustomResponse(response.data, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: normalizeHeaders(response.headers)
-  });
+  }).then(
+    (r) => new CustomResponse(r.data, {
+      status: r.status,
+      statusText: r.statusText,
+      headers: normalizeHeaders(r.headers)
+    })
+  );
 }, "customFetch");
 
 // src/defaultFetch.ts

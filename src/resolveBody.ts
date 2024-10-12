@@ -1,10 +1,9 @@
-import { URLSearchParams } from "node:url";
-import { types } from "node:util";
+import { URLSearchParams } from 'node:url';
+import { types } from 'node:util';
 
-import type { request, RequestInit } from "undici";
+import type { request, RequestInit } from 'undici';
 
 export type RequestOptions = Exclude<Parameters<typeof request>[1], undefined>;
-
 
 export async function resolveBody(body: RequestInit['body']): Promise<Exclude<RequestOptions['body'], undefined>> {
 	// eslint-disable-next-line no-eq-null, eqeqeq

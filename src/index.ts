@@ -1,10 +1,10 @@
-import { Blob } from "node:buffer";
-import { FormData } from "undici";
+import { Blob } from 'node:buffer';
+import { FormData } from 'undici';
 
-import { shouldUseGlobalFetchAndWebSocket } from "@discordjs/util";
+import { shouldUseGlobalFetchAndWebSocket } from '@discordjs/util';
 
-import { customFetch } from "./customNodeFetch.js";
-import { setDefaultStrategy } from "./environment.js";
+import { customFetch } from './customNodeFetch.js';
+import { setDefaultStrategy } from './environment.js';
 
 // TODO(ckohen): remove once node engine req is bumped to > v18
 (globalThis as any).FormData ??= FormData;

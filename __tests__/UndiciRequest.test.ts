@@ -1,12 +1,12 @@
-import { Blob, Buffer } from "node:buffer";
-import { URLSearchParams } from "node:url";
-import { MockAgent, setGlobalDispatcher } from "undici";
-import { afterEach, beforeEach, expect, test, vitest } from "vitest";
+import { Blob, Buffer } from 'node:buffer';
+import { URLSearchParams } from 'node:url';
+import { MockAgent, setGlobalDispatcher } from 'undici';
+import { afterEach, beforeEach, expect, test, vitest } from 'vitest';
 
-import { customFetch } from "../src/customNodeFetch.js";
-import { REST } from "../src/index.js";
-import { resolveBody } from "../src/strategies/undiciRequest.js";
-import { genPath } from "./util.js";
+import { customFetch } from '../src/customNodeFetch.js';
+import { REST } from '../src/index.js';
+import { resolveBody } from '../src/strategies/undiciRequest.js';
+import { genPath } from './util.js';
 
 import type { Interceptable, MockInterceptor } from 'undici/types/mock-interceptor.js';
 const makeRequestMock = vitest.fn(customFetch);
