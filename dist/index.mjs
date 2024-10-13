@@ -8,7 +8,6 @@ import { shouldUseGlobalFetchAndWebSocket } from "@discordjs/util";
 
 // src/customNodeFetch.ts
 import axios from "axios";
-import { AbortError } from "@vladfrangu/async_event_emitter";
 var normalizeHeaders = /* @__PURE__ */ __name((headers) => {
   if (!headers) return new Headers();
   const result = [];
@@ -80,9 +79,9 @@ var customFetch = /* @__PURE__ */ __name(async (input, options = {}) => {
       }
       if (error.response?.data) error.response.data = tryParse(error.response.data);
       if (error.code === "ERR_CANCELED" || error.config?.signal?.aborted) {
-        throw new AbortError(error.message, {
-          ...error
-        });
+        error.code = "ECONNRESET";
+        error.name = "AbortError";
+        throw error;
       }
       if (error.response) {
         const { status, statusText, headers, data } = error.response;

@@ -56,7 +56,6 @@ module.exports = __toCommonJS(web_exports);
 
 // src/customNodeFetch.ts
 var import_axios = __toESM(require("axios"));
-var import_async_event_emitter = require("@vladfrangu/async_event_emitter");
 var normalizeHeaders = /* @__PURE__ */ __name((headers) => {
   if (!headers) return new Headers();
   const result = [];
@@ -128,9 +127,9 @@ var customFetch = /* @__PURE__ */ __name(async (input, options = {}) => {
       }
       if (error.response?.data) error.response.data = tryParse(error.response.data);
       if (error.code === "ERR_CANCELED" || error.config?.signal?.aborted) {
-        throw new import_async_event_emitter.AbortError(error.message, {
-          ...error
-        });
+        error.code = "ECONNRESET";
+        error.name = "AbortError";
+        throw error;
       }
       if (error.response) {
         const { status, statusText, headers, data } = error.response;
@@ -704,7 +703,7 @@ var HTTPError = class _HTTPError extends Error {
 // src/lib/REST.ts
 var import_collection = require("@discordjs/collection");
 var import_snowflake = require("@sapphire/snowflake");
-var import_async_event_emitter2 = require("@vladfrangu/async_event_emitter");
+var import_async_event_emitter = require("@vladfrangu/async_event_emitter");
 var import_magic_bytes = require("magic-bytes.js");
 
 // src/lib/handlers/Shared.ts
@@ -1185,7 +1184,7 @@ var SequentialHandler = class {
 };
 
 // src/lib/REST.ts
-var REST = class _REST extends import_async_event_emitter2.AsyncEventEmitter {
+var REST = class _REST extends import_async_event_emitter.AsyncEventEmitter {
   static {
     __name(this, "REST");
   }

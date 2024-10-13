@@ -1,8 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { HeadersInit, RequestInfo, RequestInit } from "undici";
 
-import { AbortError } from "@vladfrangu/async_event_emitter";
-
 import { ResponseLike } from "./shared";
 
 const normalizeHeaders = (headers: Record<string, any>): HeadersInit => {
@@ -91,9 +89,9 @@ export const customFetch = async (input: RequestInfo | URL, options: RequestInit
             if(error.response?.data) error.response.data = tryParse(error.response.data);
 
             if(error.code === "ERR_CANCELED" || error.config?.signal?.aborted) {
-                throw new AbortError(error.message, {
-                    ...error,
-                })
+                error.code = "ECONNRESET";
+                error.name = "AbortError";
+                throw error;
             }
 
             if(error.response) {
