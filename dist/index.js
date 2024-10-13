@@ -120,7 +120,17 @@ var customFetch = /* @__PURE__ */ __name(async (input, options = {}) => {
       statusText: r.statusText,
       headers: normalizeHeaders(r.headers)
     })
-  );
+  ).catch((error) => {
+    if (import_axios.default.isAxiosError(error) && error.response) {
+      const { status, statusText, headers, data } = error.response;
+      return new CustomResponse(data ?? null, {
+        status,
+        statusText,
+        headers: normalizeHeaders(headers)
+      });
+    }
+    throw error;
+  });
 }, "customFetch");
 
 // src/environment.ts

@@ -57,7 +57,6 @@ class CustomResponse extends Response {
 
 export const customFetch = async (input: RequestInfo | URL, options: RequestInit = {}): Promise<ResponseLike> => {
 	const url = typeof input === 'string' ? new URL(input) : input instanceof URL ? input : new URL(input.url);
-
 	return axios({
 		...options,
 		url: url.toString(),
@@ -71,5 +70,16 @@ export const customFetch = async (input: RequestInfo | URL, options: RequestInit
 				statusText: r.statusText,
 				headers: normalizeHeaders(r.headers),
 			}) as unknown as ResponseLike,
-	);
+	).catch((error) => {
+        if (axios.isAxiosError(error) && error.response) {
+            const { status, statusText, headers, data } = error.response;
+
+            return new CustomResponse(data ?? null, {
+              status,
+              statusText,
+              headers: normalizeHeaders(headers),
+            }) as unknown as ResponseLike;
+        }
+        throw error;
+    });
 };
