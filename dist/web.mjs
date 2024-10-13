@@ -3,6 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 
 // src/customNodeFetch.ts
 import axios from "axios";
+import { AbortError } from "@vladfrangu/async_event_emitter";
 var normalizeHeaders = /* @__PURE__ */ __name((headers) => {
   if (!headers) return new Headers();
   const result = [];
@@ -60,13 +61,44 @@ var customFetch = /* @__PURE__ */ __name(async (input, options = {}) => {
     data: options?.body ?? void 0,
     validateStatus: /* @__PURE__ */ __name(() => true, "validateStatus")
   }).then(
-    (r) => new CustomResponse(r.status === 204 ? null : r.data, {
+    (r) => new CustomResponse(r.status === 204 ? null : r.data || null, {
       status: r.status,
       statusText: r.statusText,
       headers: normalizeHeaders(r.headers)
     })
-  );
+  ).catch((error) => {
+    if (axios.isAxiosError(error)) {
+      if ("config" in error && "body" in error.config) error.config.body = tryParse(error.config.body);
+      if ("config" in error && "data" in error.config) {
+        if ("config" in error && "body" in error.config) delete error.config.data;
+        else error.config.data = tryParse(error.config.data);
+      }
+      if (error.response?.data) error.response.data = tryParse(error.response.data);
+      if (error.code === "ERR_CANCELED" || error.config?.signal?.aborted) {
+        throw new AbortError(error.message, {
+          ...error
+        });
+      }
+      if (error.response) {
+        const { status, statusText, headers, data } = error.response;
+        return new CustomResponse(status === 204 ? null : tryParse(data) || null, {
+          status,
+          statusText,
+          headers: normalizeHeaders(headers)
+        });
+      }
+    }
+    throw error;
+  });
 }, "customFetch");
+function tryParse(data) {
+  try {
+    return typeof data === "string" ? JSON.parse(data) : data;
+  } catch {
+    return data;
+  }
+}
+__name(tryParse, "tryParse");
 
 // src/defaultFetch.ts
 function getDefaultFetch() {

@@ -59,6 +59,7 @@ var import_util2 = require("@discordjs/util");
 
 // src/customNodeFetch.ts
 var import_axios = __toESM(require("axios"));
+var import_async_event_emitter = require("@vladfrangu/async_event_emitter");
 var normalizeHeaders = /* @__PURE__ */ __name((headers) => {
   if (!headers) return new Headers();
   const result = [];
@@ -116,13 +117,44 @@ var customFetch = /* @__PURE__ */ __name(async (input, options = {}) => {
     data: options?.body ?? void 0,
     validateStatus: /* @__PURE__ */ __name(() => true, "validateStatus")
   }).then(
-    (r) => new CustomResponse(r.status === 204 ? null : r.data, {
+    (r) => new CustomResponse(r.status === 204 ? null : r.data || null, {
       status: r.status,
       statusText: r.statusText,
       headers: normalizeHeaders(r.headers)
     })
-  );
+  ).catch((error) => {
+    if (import_axios.default.isAxiosError(error)) {
+      if ("config" in error && "body" in error.config) error.config.body = tryParse(error.config.body);
+      if ("config" in error && "data" in error.config) {
+        if ("config" in error && "body" in error.config) delete error.config.data;
+        else error.config.data = tryParse(error.config.data);
+      }
+      if (error.response?.data) error.response.data = tryParse(error.response.data);
+      if (error.code === "ERR_CANCELED" || error.config?.signal?.aborted) {
+        throw new import_async_event_emitter.AbortError(error.message, {
+          ...error
+        });
+      }
+      if (error.response) {
+        const { status, statusText, headers, data } = error.response;
+        return new CustomResponse(status === 204 ? null : tryParse(data) || null, {
+          status,
+          statusText,
+          headers: normalizeHeaders(headers)
+        });
+      }
+    }
+    throw error;
+  });
 }, "customFetch");
+function tryParse(data) {
+  try {
+    return typeof data === "string" ? JSON.parse(data) : data;
+  } catch {
+    return data;
+  }
+}
+__name(tryParse, "tryParse");
 
 // src/environment.ts
 var defaultStrategy;
@@ -668,7 +700,7 @@ var HTTPError = class _HTTPError extends Error {
 // src/lib/REST.ts
 var import_collection = require("@discordjs/collection");
 var import_snowflake = require("@sapphire/snowflake");
-var import_async_event_emitter = require("@vladfrangu/async_event_emitter");
+var import_async_event_emitter2 = require("@vladfrangu/async_event_emitter");
 var import_magic_bytes = require("magic-bytes.js");
 
 // src/lib/handlers/Shared.ts
@@ -1149,7 +1181,7 @@ var SequentialHandler = class {
 };
 
 // src/lib/REST.ts
-var REST = class _REST extends import_async_event_emitter.AsyncEventEmitter {
+var REST = class _REST extends import_async_event_emitter2.AsyncEventEmitter {
   static {
     __name(this, "REST");
   }

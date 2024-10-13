@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { HeadersInit, RequestInfo, RequestInit } from "undici";
 
+import { AbortError } from "@vladfrangu/async_event_emitter";
+
 import { ResponseLike } from "./shared";
 
 const normalizeHeaders = (headers: Record<string, any>): HeadersInit => {
@@ -56,7 +58,11 @@ class CustomResponse extends Response {
 }
 
 export const customFetch = async (input: RequestInfo | URL, options: RequestInit = {}): Promise<ResponseLike> => {
-	const url = typeof input === 'string' ? new URL(input) : input instanceof URL ? input : new URL(input.url);
+	const url = typeof input === 'string'
+        ? new URL(input)
+        : input instanceof URL
+            ? input
+            : new URL(input.url);
 	return axios({
 		...options,
 		url: url.toString(),
@@ -66,10 +72,51 @@ export const customFetch = async (input: RequestInfo | URL, options: RequestInit
         validateStatus: () => true,
 	} as AxiosRequestConfig).then(
 		(r) =>
-			new CustomResponse(r.status === 204 ? null : r.data, {
+			new CustomResponse(r.status === 204 ? null : r.data || null, {
 				status: r.status,
 				statusText: r.statusText,
 				headers: normalizeHeaders(r.headers),
 			}) as unknown as ResponseLike,
-	);
+	).catch((error) => {
+        if(axios.isAxiosError(error)) {
+            // format the error
+            if("config" in error && "body" in error.config) error.config.body = tryParse(error.config.body);
+
+            // only keep the data in the error.config if no body
+            if("config" in error && "data" in error.config) {
+                if("config" in error && "body" in error.config) delete error.config.data;
+                else error.config.data = tryParse(error.config.data);
+            }
+
+            if(error.response?.data) error.response.data = tryParse(error.response.data);
+
+            if(error.code === "ERR_CANCELED" || error.config?.signal?.aborted) {
+                throw new AbortError(error.message, {
+                    ...error,
+                })
+            }
+
+            if(error.response) {
+                const { status, statusText, headers, data } = error.response;
+
+                return new CustomResponse(status === 204 ? null : (tryParse(data) || null), {
+                    status,
+                    statusText,
+                    headers: normalizeHeaders(headers),
+                }) as unknown as ResponseLike;
+            }
+        }
+
+        throw error
+    });
 };
+
+function tryParse(data:unknown) {
+    try {
+        return typeof data === "string"
+            ? JSON.parse(data)
+            : data;
+    } catch {
+        return data;
+    }
+}
