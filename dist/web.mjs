@@ -57,24 +57,15 @@ var customFetch = /* @__PURE__ */ __name(async (input, options = {}) => {
     url: url.toString(),
     method: options?.method ?? "GET",
     headers: options?.headers ?? {},
-    data: options?.body ?? void 0
+    data: options?.body ?? void 0,
+    validateStatus: /* @__PURE__ */ __name(() => true, "validateStatus")
   }).then(
     (r) => new CustomResponse(r.status === 204 ? null : r.data, {
       status: r.status,
       statusText: r.statusText,
       headers: normalizeHeaders(r.headers)
     })
-  ).catch((error) => {
-    if (axios.isAxiosError(error) && error.response) {
-      const { status, statusText, headers, data } = error.response;
-      return new CustomResponse(data ?? null, {
-        status,
-        statusText,
-        headers: normalizeHeaders(headers)
-      });
-    }
-    throw error;
-  });
+  );
 }, "customFetch");
 
 // src/defaultFetch.ts

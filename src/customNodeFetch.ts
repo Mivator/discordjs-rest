@@ -63,6 +63,7 @@ export const customFetch = async (input: RequestInfo | URL, options: RequestInit
 		method: options?.method ?? 'GET',
 		headers: options?.headers ?? {},
 		data: options?.body ?? undefined,
+        validateStatus: () => true,
 	} as AxiosRequestConfig).then(
 		(r) =>
 			new CustomResponse(r.status === 204 ? null : r.data, {
@@ -70,16 +71,5 @@ export const customFetch = async (input: RequestInfo | URL, options: RequestInit
 				statusText: r.statusText,
 				headers: normalizeHeaders(r.headers),
 			}) as unknown as ResponseLike,
-	).catch((error) => {
-        if (axios.isAxiosError(error) && error.response) {
-            const { status, statusText, headers, data } = error.response;
-
-            return new CustomResponse(data ?? null, {
-              status,
-              statusText,
-              headers: normalizeHeaders(headers),
-            }) as unknown as ResponseLike;
-        }
-        throw error;
-    });
+	);
 };
